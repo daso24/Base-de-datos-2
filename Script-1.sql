@@ -123,3 +123,83 @@ VALUES
 (1, 2, 'Colegiatura Semestral', 15000.00, 'Transferencia', 'REF_EXITO');
 */
 
+
+
+
+/* =========================================================
+   5. PROCEDIMIENTO - CAMBIAR ESTADO DE ESTUDIANTE
+   ========================================================= */
+
+CREATE OR REPLACE PROCEDURE cambiar_estado_estudiante(
+    p_matricula VARCHAR,
+    p_estado VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    UPDATE estudiantes
+    SET estado = p_estado
+    WHERE matricula = p_matricula;
+
+
+    IF NOT FOUND THEN
+
+        RAISE EXCEPTION
+        'No existe un estudiante con la matrícula %',
+        p_matricula;
+
+    END IF;
+
+
+    RAISE NOTICE
+    'Estado del estudiante actualizado correctamente.';
+
+END;
+$$;
+
+/* =========================================================
+   EJECUTAR PROCEDIMIENTO
+   ========================================================= */
+
+CALL cambiar_estado_estudiante(
+    '2024001',
+    'INACTIVO'
+);
+
+
+/* Verificar */
+
+SELECT
+    matricula,
+    nombre,
+    apellido,
+    estado
+FROM estudiantes
+WHERE matricula = '2024001';
+
+--select * from estudiantes e 
+
+
+--1.7 | Actividad: CREACION DE Procedimiento Almacenado
+
+CREATE OR REPLACE PROCEDURE cambiar_docente_grupo(
+    p_id_grupo INT,
+    p_id_nuevo_docente INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE grupos
+    SET id_docente = p_id_nuevo_docente
+    WHERE id_grupo = p_id_grupo;
+END;
+$$;
+
+--prueba cambiar_docente-grupo
+CALL cambiar_docente_grupo(1, 2);
+
+SELECT g.id_grupo, g.id_docente, d.nombre, d.apellido 
+FROM grupos g
+INNER JOIN docentes d ON g.id_docente = d.id_docente
+WHERE g.id_grupo = 1;
